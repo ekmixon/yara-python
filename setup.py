@@ -181,9 +181,7 @@ class BuildExtCommand(build_ext):
     """Execute the build command."""
 
     module = self.distribution.ext_modules[0]
-    base_dir = os.path.dirname(__file__)
-
-    if base_dir:
+    if base_dir := os.path.dirname(__file__):
       os.chdir(base_dir)
 
     exclusions = []
@@ -258,7 +256,7 @@ class BuildExtCommand(build_ext):
     if self.dynamic_linking:
       module.libraries.append('yara')
     else:
-      if not self.define or not ('HASH_MODULE', '1') in self.define:
+      if not self.define or ('HASH_MODULE', '1') not in self.define:
         if (has_function('MD5_Init', include_dirs=module.include_dirs, libraries=['crypto'], library_dirs=module.library_dirs) and
             has_function('SHA256_Init', include_dirs=module.include_dirs, libraries=['crypto'], library_dirs=module.library_dirs)):
           module.define_macros.append(('HASH_MODULE', '1'))
@@ -297,10 +295,10 @@ class BuildExtCommand(build_ext):
       else:
         exclusions.append('yara/libyara/modules/macho/macho.c')
 
-      # exclude pb_tests module
-      exclusions.append('yara/libyara/modules/pb_tests/pb_tests.c')
-      exclusions.append('yara/libyara/modules/pb_tests/pb_tests.pb-c.c')
-
+      exclusions.extend((
+          'yara/libyara/modules/pb_tests/pb_tests.c',
+          'yara/libyara/modules/pb_tests/pb_tests.pb-c.c',
+      ))
       exclusions = [os.path.normpath(x) for x in exclusions]
 
       for directory, _, files in os.walk('yara/libyara/'):
@@ -338,7 +336,7 @@ class UpdateCommand(Command):
     subprocess.check_call(['git', 'pull'], cwd='yara')
     subprocess.check_call(['git', 'fetch', '--tags'], cwd='yara')
 
-    tag_name = 'tags/v%s' % self.distribution.metadata.version
+    tag_name = f'tags/v{self.distribution.metadata.version}'
     subprocess.check_call(['git', 'checkout', tag_name], cwd='yara')
 
     subprocess.check_call(['./bootstrap.sh'], cwd='yara')

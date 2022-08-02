@@ -775,15 +775,11 @@ class TestYara(unittest.TestCase):
         tmpdir = tempfile.gettempdir()
 
         p1 = os.path.join(tmpdir, 'test1')
-        f1 = open(p1, 'wt')
-        f1.write('rule test1 { condition: true }')
-        f1.close()
-
+        with open(p1, 'wt') as f1:
+            f1.write('rule test1 { condition: true }')
         p2 = os.path.join(tmpdir, 'test2')
-        t2 = open(p2, 'wt')
-        t2.write('rule test2 { condition: true }')
-        t2.close()
-
+        with open(p2, 'wt') as t2:
+            t2.write('rule test2 { condition: true }')
         r = yara.compile(filepaths={
             'test1': p1,
             'test2': p2
@@ -803,15 +799,11 @@ class TestYara(unittest.TestCase):
         tmpdir = tempfile.gettempdir()
 
         p1 = os.path.join(tmpdir, 'test1')
-        f1 = open(p1, 'wt')
-        f1.write('rule test1 { condition: true }')
-        f1.close()
-
+        with open(p1, 'wt') as f1:
+            f1.write('rule test1 { condition: true }')
         p2 = os.path.join(tmpdir, 'test2')
-        f2 = open(p2, 'wt')
-        f2.write('include "%s" rule test2 { condition: test1 }' % p1)
-        f2.close()
-
+        with open(p2, 'wt') as f2:
+            f2.write('include "%s" rule test2 { condition: test1 }' % p1)
         r = yara.compile(p2)
         self.assertTrue(len(r.match(data='dummy')) == 2)
 
